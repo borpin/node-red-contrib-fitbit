@@ -27,7 +27,7 @@ function parseFitbitData(data) {
 function typedDataFactory(RED, config, node) {
     return function getTypedInput(msg, key) {
         const type = key + 'Type';
-        node.warn("got here")
+        node.warn("got here:" + type)
 
         if (!config[type]) return config[key];
 
