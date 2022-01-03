@@ -276,12 +276,16 @@ Some parameters, such as Period, have a limited set of inputs that vary between 
 
 ### API Resources Exposed
 
-: Get Devices Information   : Input requires
-: Get Activity Log List     :
+1. Get Devices Information
+: Input requires () : none
 
-: Get Daily Activity Summary:
+2. Get Activity Log List
+: beforeDate (timestamp, str) : The date before which the data is required (YYY-MM-DD if string)
+: afterDate (timestamp, str) : The date before which the data is required
 
-: Get Activity Timeseries   :
+3. Get Daily Activity Summary:
+
+4. Get Activity Timeseries   :
 : Get Body Timeseries       :
 : Get Food Timeseries       :
 : Get Food Log              :
