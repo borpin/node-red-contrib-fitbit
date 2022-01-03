@@ -1,11 +1,8 @@
-Makes GET request to the https://dev.fitbit.com/build/reference/web-api/ Fitbit API
+This node makes requests to the Fitbit API https://dev.fitbit.com/build/reference/web-api/. It will both Get data from the API and Log data to Fitbit. It is not a complete set of resources to access the API.
 
 Please refer to the API documentation for specific input details, dates should be convertable by https://momentjs.com/docs/ MomentJS.
-Some parameters, such as Period, have a limited set of inputs that vary between endpoints
 
-modified to make all the Gets a 'get'
-
-Connects to a MQTT broker and publishes messages.
+Some parameters, such as Period, have a limited set of inputs that vary between endpoints.
 
 ### Inputs
 
