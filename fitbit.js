@@ -41,6 +41,11 @@ function typedDataFactory(RED, config, node) {
                 return node.context().flow.get(config[key]);
             case 'global':
                 return node.context().global.get(config[key]);
+            case 'num':
+                return config[key];
+            case 'jsonata':
+
+            case 'env':
 
             default:
                 break;
@@ -88,18 +93,6 @@ module.exports = function (RED) {
             method: "GET",
             func: UrlFactory.getFoodTimeSeries
         },
-        "log-body-weight": {
-            display: RED._("fitbit.resources.log-body-weight"),
-            inputs: ["date", "weight"],
-            method: "POST",
-            func: UrlFactory.logBodyWeight
-        },
-        "log-body-fat": {
-            display: RED._("fitbit.resources.log-body-fat"),
-            inputs: ["date", "bodyFat"],
-            method: "POST",
-            func: UrlFactory.logBodyFat
-        },
         "get-food-log": {
             display: RED._("fitbit.resources.get-food-log"),
             inputs: ["date"],
@@ -118,24 +111,36 @@ module.exports = function (RED) {
             method: "GET",
             func: UrlFactory.getSleepLogList
         },
+        "log-body-weight": {
+            display: RED._("fitbit.resources.log-body-weight"),
+            inputs: ["date", "weight"],
+            method: "POST",
+            func: UrlFactory.logBodyWeight
+        },
+        "log-body-fat": {
+            display: RED._("fitbit.resources.log-body-fat"),
+            inputs: ["date", "bodyFat"],
+            method: "POST",
+            func: UrlFactory.logBodyFat
+        },
         "log-activity": {
             display: RED._("fitbit.resources.log-activity"),
             inputs: ["date", "startTime", "durationSec", "activityId", "activityName", "manualCalories", "distance", "distanceUnit"],
             method: "POST",
-            func: UrlFactory.logActivty,
-        },
-        "delete-activity": {
-            display: RED._("fitbit.resources.delete-activity"),
-            inputs: ["activityLogId"],
-            method: "DELETE",
-            func: UrlFactory.deleteActivty,
+            func: UrlFactory.logActivity
         },
         "log-food": {
             display: RED._("fitbit.resources.log-food"),
             inputs: ["startDate", "foodId", "mealTypeId", "unitId", "manualCalories"],
             method: "POST",
-            func: UrlFactory.logFood,
+            func: UrlFactory.logFood
         },
+        "delete-activity": {
+            display: RED._("fitbit.resources.delete-activity"),
+            inputs: ["activityLogId"],
+            method: "DELETE",
+            func: UrlFactory.deleteActivity
+        }
     };
 
     function fitbitInNode(config) {

@@ -227,7 +227,7 @@ class UrlFactory {
     return urlObj.href;
   }
 
-  static logActivty(data) {
+  static logActivity(data) {
     checkData(data);
 
     if (data.activityId && data.activityName) {
@@ -271,7 +271,7 @@ class UrlFactory {
     return urlObj.href;
   }
 
-  static deleteActivty(data) {
+  static deleteActivity(data) {
     checkData(data);
 
     if (!data.activityLogId) {
