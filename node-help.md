@@ -4,7 +4,27 @@ Please refer to the API documentation for specific input details, dates should b
 
 Some parameters, such as Period, have a limited set of inputs that vary between endpoints.
 
-### Inputs
+### API Resources Exposed
+
+: Get Devices Information   : Input requires
+: Get Activity Log List     :
+
+: Get Daily Activity Summary:
+
+: Get Activity Timeseries   :
+: Get Body Timeseries       :
+: Get Food Timeseries       :
+: Get Food Log              :
+: Get Sleep Log by date     :
+: Get Sleep Log List        :
+: Log Body Weight           :
+: Log Body Fat              :
+: Log activity              :
+: Log food                  :
+: Delete activity           :
+: Delete log food           :
+
+### Input
 
 : payload (string | buffer) :  the payload of the message to publish.
 : *topic* (string)          :  the MQTT topic to publish to.
@@ -23,7 +43,7 @@ Some parameters, such as Period, have a limited set of inputs that vary between 
 If it contains an Object it will be converted to a JSON string before being sent.
 If it contains a binary Buffer the message will be published as-is.
 
-The topic used can be configured in the node or, if left blank, can be set
+The topic used can be configured in the node or/t: if left blank, can be set
 `msg.topic`.
 
 Likewise the QoS and retain values can be configured in the node or, if left
