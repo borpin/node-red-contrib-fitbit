@@ -279,51 +279,40 @@ Some parameters, such as Period, have a limited set of inputs that vary between 
 ### Get Devices Information
 This resource needs no other input.
 
-### Get Activity Log List [API ref](https://dev.fitbit.com/build/reference/web-api/activity/get-activity-log-list/) - [*Either a before date or an after date is required. If both are provided, the before date will be used.*]
+### Get Activity Log List
 : beforeDate (timestamp, str) : The date before which the data is required (YYY-MM-DD if string)
 : afterDate (timestamp, str) : The date before which the data is required
 : sort (str) : The sort order (asc,desc)
 : limit (str,num) : Number of entries required (max 100)
 
-3. Get Daily Activity Summary:
+#### Note
+Either a before date or an after date is required. If both are provided, the before date will be used.
 
-4. Get Activity Timeseries   :
-: Get Body Timeseries       :
-: Get Food Timeseries       :
-: Get Food Log              :
-: Get Sleep Log by date     :
-: Get Sleep Log List        :
-: Log Body Weight           :
-: Log Body Fat              :
-: Log activity              :
-: Log food                  :
-: Delete activity           :
-: Delete log food           :
+### Get Daily Activity Summary
 
-### Input
+### Get Activity Timeseries
 
-: payload (string | buffer) :  the payload of the message to publish.
-: *topic* (string)          :  the MQTT topic to publish to.
+### Get Body Timeseries
 
-### Outputs
+### Get Food Timeseries
 
-1. Standard output
-: payload (string) : the standard output of the command.
+### Get Food Log
 
-2. Standard error
-: payload (string) : the standard error of the command.
+### Get Sleep Log by date
 
-### Details
+### Get Sleep Log List
 
-`msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.
-If it contains a binary Buffer the message will be published as-is.
+### Log Body Weight
 
-The topic used can be configured in the node or/t: if left blank, can be set
-`msg.topic`.
+### Log Body Fat
 
-Likewise the QoS and retain values can be configured in the node or, if left
-blank, set by `msg.qos` and `msg.retain` respectively.
+### Log activity
+
+### Log food
+
+### Delete activity
+
+### Delete log food
 
 ### References
 
