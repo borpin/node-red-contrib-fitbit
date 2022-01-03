@@ -64,11 +64,10 @@ class UrlFactory {
   static getDailyActivitySummary(data) {
     checkData(data);
 
-    if (!data.startDate) {
-      throw "Start date is required.";
+    if (!data.date) {
+      throw "Date is required.";
     }
-    const formattedStartDate = formatDate(data.startDate);
-    return fitbitUrlCurrentUser("activities/date/", formattedStartDate);
+    return fitbitUrlCurrentUser("activities/date/", formatDate(data.date));
   }
 
   static getActivityTimeSeries(data) {

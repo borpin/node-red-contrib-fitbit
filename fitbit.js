@@ -66,7 +66,7 @@ module.exports = function (RED) {
         },
         "get-daily-activity-summary": {
             display: RED._("fitbit.resources.get-daily-activity-summary"),
-            inputs: ["startDate"],
+            inputs: ["date"],
             method: "GET",
             func: UrlFactory.getDailyActivitySummary
         },

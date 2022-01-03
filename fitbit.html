@@ -274,27 +274,47 @@ Please refer to the API documentation for specific input details, dates should b
 
 Some parameters, such as Period, have a limited set of inputs that vary between endpoints.
 
-## API Resources Exposed
+## API Endpoints Exposed
 
 ### Get Devices Information
 This resource needs no other input.
 
 ### Get Activity Log List
-: beforeDate (timestamp, str) : The date before which the data is required (YYY-MM-DD if string)
-: afterDate (timestamp, str) : The date before which the data is required
-: sort (str) : The sort order (asc,desc)
-: limit (str,num) : Number of entries required (max 100)
+: beforeDate (timestamp, str) : The date before which the data is required (YYYY-MM-DD if string).
+: afterDate (timestamp, str) : The date before which the data is required (YYYY-MM-DD if string).
+: sort (str) : The sort order (asc,desc).
+: limit (str,num) : Number of entries required (max 100).
 
 #### Note
 Either a before date or an after date is required. If both are provided, the before date will be used.
 
 ### Get Daily Activity Summary
+: date (timestamp, str) : The date the summary is required for (YYYY-MM-DD if string).
 
 ### Get Activity Timeseries
+: startDate (timestamp, str) : The date the data returned is to start from (YYYY-MM-DD if string).
+: endDate (timestamp, str) : The date the data returned should end on (YYYY-MM-DD if string).
+: period (num, str) : Use 1d, 7d, 30d, 1w, 1m, 3m, 6m or 1y
+
+#### Note
+An endDate is always required. If a period is provided, this will be used in combination with the endDate. If a startDate is provided, and no period, the data requested will be between those 2 dates.
 
 ### Get Body Timeseries
+: resource (defined) : use one of bmi, fat, or weight.
+: startDate (timestamp, str) : The date the data returned is to start from (YYYY-MM-DD if string).
+: endDate (timestamp, str) : The date the data returned should end on (YYYY-MM-DD if string).
+: period (num, str) : Use 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max
 
-### Get Food Timeseries
+#### Note
+An endDate is always required. If a period is provided, this will be used in combination with the endDate. If a startDate is provided, and no period, the data requested will be between those 2 dates.
+
+### Get Food Timeseries (not correct)
+: startDate (timestamp, str) : The date the data returned is to start from (YYYY-MM-DD if string).
+: endDate (timestamp, str) : The date the data returned should end on (YYYY-MM-DD if string).
+: period (num, str) : Use 1d, 7d, 30d, 1w, 1m, 3m, 6m or 1y
+
+#### Note
+An endDate is always required. If a period is provided, this will be used in combination with the endDate. If a startDate is provided, and no period, the data requested will be between those 2 dates.
 
 ### Get Food Log
 
