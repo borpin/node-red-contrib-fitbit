@@ -12,82 +12,66 @@ function formatDate(date) {
   return moment(date).format('YYYY-MM-DD');
 }
 
+function formatTime(date) {
+  return moment(date).format('HH:mm:ss');
+}
+
 function checkData(data) {
   if (!data)
     throw new Error("No data specified");
 }
 
 function checkValidPeriod(data) {
-  if (!['1d', '7d', '1w', '1m'].includes(data.period)) throw new Error("Invalid period");
+  if (!['1d', '7d', '1w', '1m', '3m', '6m', '1y'].includes(data.period)) throw new Error("Invalid period. Use 1d, 7d, 1w, 1m, 3m, 6m, or 1y");
+}
+
+function checkSort(data) {
+  if (!['asc', 'desc'].includes(data.sort)) throw new Error("Sort must be asc or desc.");
 }
 
 class UrlFactory {
 
-  static bodyTimeSeries(data) {
+  static getDevicesInformation() {
+    return fitbitUrlCurrentUser("devices");
+  }
+
+  static getActivityLogList(data) {
+    //sample URL
+    // https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2019-01-01&sort=asc&offset=0&limit=2
+    // API Docs https://dev.fitbit.com/build/reference/web-api/activity/get-activity-log-list/
+    checkData(data);
+    checkSort(data);
+
+    const urlObj = new URL(fitbitUrlCurrentUser("activities", "list"));
+
+    if (!data.afterDate) {
+      if (!data.beforeDate) {
+        throw new Error("Either Before Date or After Date must be specified.");
+      } else {
+        urlObj.searchParams.append("beforeDate", formatDate(data.beforeDate));
+      }
+    } else {
+      urlObj.searchParams.append("afterDate", formatDate(data.afterDate));
+    }
+
+    urlObj.searchParams.append("sort", data.sort);
+    urlObj.searchParams.append("limit", data.limit);
+    urlObj.searchParams.append("offset", "0");
+
+    return urlObj.href;
+  }
+
+  static getDailyActivitySummary(data) {
     checkData(data);
 
     if (!data.startDate) {
-      throw new Error("Start date is required.");
-    }
-    if (!data.bodySeriesPath) {
-      throw new Error("Resource is required");
+      throw "Start date is required.";
     }
     const formattedStartDate = formatDate(data.startDate);
-
-    if (!data.endDate && data.period) {
-      return fitbitUrlCurrentUser("body", data.bodySeriesPath, "date", formattedStartDate, data.period);
-    } else if (data.endDate && !data.period) {
-      const formattedEndDate = formatDate(data.endDate);
-      return fitbitUrlCurrentUser("body", data.bodySeriesPath, "date", formattedStartDate, formattedEndDate);
-    } else {
-      throw new Error("Bad input combination");
-    }
+    return fitbitUrlCurrentUser("activities/date/", formattedStartDate);
   }
 
-  static foodTimeSeries(data) {
-    checkData(data);
-
-    if (!data.startDate) {
-      throw new Error("Start date is required.");
-    }
-    if (!data.foodSeriesPath) {
-      throw new Error("Resource is required");
-    }
-    const formattedStartDate = formatDate(data.startDate);
-
-    if (!data.endDate && data.period) {
-      return fitbitUrlCurrentUser("foods/log", data.foodSeriesPath, "date", formattedStartDate, data.period);
-    } else if (data.endDate && !data.period) {
-      const formattedEndDate = formatDate(data.endDate);
-      return fitbitUrlCurrentUser("foods/log", data.foodSeriesPath, "date", formattedStartDate, formattedEndDate);
-    } else {
-      throw new Error("Bad input combination");
-    }
-  }
-
-  static bodyWeightLog(data) {
-    checkData(data);
-
-    if (!data.startDate) {
-      throw new Error("Start date is required.");
-    }
-    const formattedStartDate = formatDate(data.startDate);
-    const bodyUri = "body/log/weight/date";
-
-    if (!data.endDate && !data.period) {
-      return fitbitUrlCurrentUser(bodyUri, formattedStartDate);
-    } else if (data.endDate && !data.period) {
-      const formattedEndDate = formatDate(data.endDate);
-      return fitbitUrlCurrentUser(bodyUri, formattedStartDate, formattedEndDate);
-    } else if (!data.endDate && data.period) {
-      checkValidPeriod(data);
-      return fitbitUrlCurrentUser(bodyUri, formattedStartDate, data.period);
-    } else {
-      throw new Error("Bad input combination");
-    }
-  }
-
-  static activityTimeSeries(data) {
+  static getActivityTimeSeries(data) {
     checkData(data);
 
     if (!data.activitiesSeriesPath) {
@@ -98,72 +82,150 @@ class UrlFactory {
     }
     const formattedEndDate = formatDate(data.endDate);
 
-    if (!data.startDate && data.period) {
-      return fitbitUrlCurrentUser("activities", data.activitiesSeriesPath, "date", formattedEndDate, data.period);
-    } else if (data.startDate && !data.period) {
-      const formattedStartDate = formatDate(data.startDate);
-      return fitbitUrlCurrentUser("activities", data.activitiesSeriesPath, "date", formattedStartDate, formattedEndDate);
+    // Gets either data between 2 dates or a period of time ending on the end date.
+    // If period defined, just use end date.
+
+    if (data.period) {
+      if (['1d', '7d', '30d', '1w', '1m', '3m', '6m', '1y'].includes(data.period)){
+        return fitbitUrlCurrentUser("activities", data.activitiesSeriesPath, "date", formattedEndDate, data.period);
+      } else {
+        throw new Error("Period:" + data.period + "  Invalid period. Use 1d, 7d, 30d, 1w, 1m, 3m, 6m or 1y");
+      }
+    } else if (data.startDate) {
+      return fitbitUrlCurrentUser("activities", data.activitiesSeriesPath, "date", formatDate(data.startDate), formattedEndDate);
     } else {
-      throw new Error("Bad input combination");
+      throw new Error("Input must be end date and either satart date or period.");
     }
   }
 
-  static activitySummary(data) {
+  static getBodyTimeSeries(data) {
     checkData(data);
 
-    if (!data.startDate) {
-      throw "Start date is required.";
+    if (!data.bodySeriesPath) {
+      throw new Error("Resource of bmi, fat, or weight is required");
+    } else if (!['bmi', 'fat', 'weight'].includes(data.bodySeriesPath)) {
+      throw new Error("Resource of bmi, fat, or weight is required");
+    } 
+
+    if (!data.endDate) {
+      throw new Error("End date is required.");
     }
-    const formattedStartDate = formatDate(data.startDate);
-    return fitbitUrlCurrentUser("activities/date/", formattedStartDate);
+    const formattedEndDate = formatDate(data.endDate);
+
+    // Gets either data between 2 dates or a period of time ending on the end date.
+    // If period defined, just use end date.
+
+    if (data.period) {
+      if (['1d', '7d', '30d', '1w', '1m', '3m', '6m', '1y', 'max'].includes(data.period)){
+        return fitbitUrlCurrentUser("body", data.bodySeriesPath, "date", formattedEndDate, data.period);
+      } else {
+        throw new Error("Period:" + data.period + "  Invalid period. Use 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max");
+      }
+    } else if (data.startDate) {
+      return fitbitUrlCurrentUser("body", data.bodySeriesPath, "date", formatDate(data.startDate), formattedEndDate);
+    } else {
+      throw new Error("Input must be end date and either satart date or period.");
+    }
   }
 
-  static foodSummary(data) {
+  static getFoodTimeSeries(data) {
     checkData(data);
 
-    if (!data.startDate) {
-      throw "Start date is required.";
+    if (!data.foodSeriesPath) {
+      throw new Error("Resource is required");
     }
-    const formattedStartDate = formatDate(data.startDate);
-    return fitbitUrlCurrentUser("foods/log/date/", formattedStartDate);
-  }
-
-  static devices() {
-    return fitbitUrlCurrentUser("devices");
-  }
-
-  static sleepLog(data) {
-    checkData(data);
-
-    if (!data.startDate) {
-      throw new Error("Start date is required.");
+    if (!data.endDate) {
+      throw new Error("End date is required.");
     }
+    const formattedEndDate = formatDate(data.endDate);
 
-    const formattedStartDate = formatDate(data.startDate);
-    return fitbitUrlCurrentUser("sleep/date/" + formattedStartDate);
-  }
+    // Gets either data between 2 dates or a period of time ending on the end date.
+    // If period defined, just use end date.
 
-  static bodyFatLog(data) {
-    checkData(data);
-
-    if (!data.startDate) {
-      throw new Error("Start date is required.");
-    }
-    const formattedStartDate = formatDate(data.startDate);
-    const fatUri = "body/log/fat/date"
-
-    if (!data.endDate && !data.period) {
-      return fitbitUrlCurrentUser(fatUri, formattedStartDate);
+    if (data.period) {
+      return fitbitUrlCurrentUser("foods/log", data.foodSeriesPath, "date", formattedStartDate, data.period);
     } else if (data.endDate && !data.period) {
       const formattedEndDate = formatDate(data.endDate);
-      return fitbitUrlCurrentUser(fatUri, formattedStartDate, formattedEndDate);
-    } else if (!data.endDate && data.period) {
-      checkValidPeriod(data);
-
-      return fitbitUrlCurrentUser(fatUri, formattedStartDate, data.period);
+      return fitbitUrlCurrentUser("foods/log", data.foodSeriesPath, "date", formattedStartDate, formattedEndDate);
     } else {
       throw new Error("Bad input combination");
     }
+  }
+
+  static logBodyWeight(data) {
+    checkData(data);
+
+    const urlObj = new URL(fitbitUrlCurrentUser("body/log/weight"));
+
+    if (isNaN(Number(data.weight))) {
+      throw new Error("Input weight is not a number");
+    } else {
+      urlObj.searchParams.append("weight", data.weight);
+    }
+    urlObj.searchParams.append("date", formatDate(data.date));
+    urlObj.searchParams.append("time", formatTime(data.date));
+
+    return urlObj.href;
+  }
+
+  static logBodyFat(data) {
+    checkData(data);
+
+    const urlObj = new URL(fitbitUrlCurrentUser("body/log/fat"));
+
+    if (isNaN(Number(data.bodyFat))) {
+      throw new Error("Input Body Fat % is not a number");
+    } else {
+      urlObj.searchParams.append("fat", data.bodyFat);
+    }
+    urlObj.searchParams.append("date", formatDate(data.date));
+    urlObj.searchParams.append("time", formatTime(data.date));
+
+    return urlObj.href;
+
+  }
+
+  static getFoodLog(data) {
+    checkData(data);
+
+    if (!data.date) {
+      throw new Error("Date is required.");
+    } else {
+      return fitbitUrlCurrentUser("foods/log/date/", formatDate(data.date));
+    }
+  }
+
+  static getSleepLogDate(data) {
+    checkData(data);
+
+    if (!data.startDate) {
+      throw new Error("Start date is required.");
+    } else {
+      return fitbitUrlCurrentUser("sleep/date/" + formatDate(data.date));
+    }
+  }
+
+  static getSleepLogList(data) {
+    checkData(data);
+    checkSort(data);
+
+    const urlObj = new URL(fitbitUrlCurrentUser("sleep", "list"));
+
+    if (!data.afterDate) {
+      if (!data.beforeDate) {
+        throw new Error("Either Before Date or After Date must be specified.");
+      } else {
+        urlObj.searchParams.append("beforeDate", formatDate(data.beforeDate));
+      }
+    } else {
+      urlObj.searchParams.append("afterDate", formatDate(data.afterDate));
+    }
+
+    urlObj.searchParams.append("sort", data.sort);
+    urlObj.searchParams.append("limit", data.limit);
+    urlObj.searchParams.append("offset", "0");
+
+    return urlObj.href;
   }
 
   static logActivty(data) {

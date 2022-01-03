@@ -52,63 +52,75 @@ module.exports = function (RED) {
     const oauth = require('./oauth-helper')(RED);
 
     const RESOURCE_TYPES = {
-        "body-fat-log": {
-            display: RED._("fitbit.resources.body-fat-log"),
-            inputs: ["startDate", "endDate", "period"],
-            method: "GET",
-            func: UrlFactory.bodyFatLog
-        },
-        "body-weight-log": {
-            display: RED._("fitbit.resources.body-weight-log"),
-            inputs: ["startDate", "endDate", "period"],
-            method: "GET",
-            func: UrlFactory.bodyWeightLog
-        },
-        "body-timeseries": {
-            display: RED._("fitbit.resources.body-timeseries"),
-            inputs: ["bodySeriesPath", "startDate", "endDate", "period"],
-            method: "GET",
-            func: UrlFactory.bodyTimeSeries
-        },
-        "food-timeseries": {
-            display: RED._("fitbit.resources.food-timeseries"),
-            inputs: ["foodSeriesPath", "startDate", "endDate", "period"],
-            method: "GET",
-            func: UrlFactory.foodTimeSeries
-        },
-        "activity-timeseries": {
-            display: RED._("fitbit.resources.activity-timeseries"),
-            inputs: ["activitiesSeriesPath", "startDate", "endDate", "period"],
-            method: "GET",
-            func: UrlFactory.activityTimeSeries
-        },
-        "activity-summary": {
-            display: RED._("fitbit.resources.activity-summary-in"),
-            inputs: ["startDate"],
-            method: "GET",
-            func: UrlFactory.activitySummary
-        },
-        "food-summary": {
-            display: RED._("fitbit.resources.food-summary"),
-            inputs: ["startDate"],
-            method: "GET",
-            func: UrlFactory.foodSummary
-        },
         "devices": {
-            display: RED._("fitbit.resources.devices-in"),
+            display: RED._("fitbit.resources.get-devices-in"),
             inputs: [],
             method: "GET",
-            func: UrlFactory.devices
+            func: UrlFactory.getDevicesInformation
         },
-        "sleep-log": {
-            display: RED._("fitbit.resources.sleep-log"),
+        "get-activity-log-list": {
+            display: RED._("fitbit.resources.get-activity-log-list"),
+            inputs: ["beforeDate", "afterDate", "sort", "limit"],
+            method: "GET",
+            func: UrlFactory.getActivityLogList
+        },
+        "get-daily-activity-summary": {
+            display: RED._("fitbit.resources.get-daily-activity-summary"),
             inputs: ["startDate"],
             method: "GET",
-            func: UrlFactory.sleepLog
+            func: UrlFactory.getDailyActivitySummary
+        },
+        "get-activity-timeseries": {
+            display: RED._("fitbit.resources.get-activity-timeseries"),
+            inputs: ["activitiesSeriesPath", "startDate", "endDate", "period"],
+            method: "GET",
+            func: UrlFactory.getActivityTimeSeries
+        },
+        "get-body-timeseries": {
+            display: RED._("fitbit.resources.get-body-timeseries"),
+            inputs: ["bodySeriesPath", "startDate", "endDate", "period"],
+            method: "GET",
+            func: UrlFactory.getBodyTimeSeries
+        },
+        "get-food-timeseries": {
+            display: RED._("fitbit.resources.get-food-timeseries"),
+            inputs: ["foodSeriesPath", "startDate", "endDate", "period"],
+            method: "GET",
+            func: UrlFactory.getFoodTimeSeries
+        },
+        "log-body-weight": {
+            display: RED._("fitbit.resources.log-body-weight"),
+            inputs: ["date", "weight"],
+            method: "POST",
+            func: UrlFactory.logBodyWeight
+        },
+        "log-body-fat": {
+            display: RED._("fitbit.resources.log-body-fat"),
+            inputs: ["date", "bodyFat"],
+            method: "POST",
+            func: UrlFactory.logBodyFat
+        },
+        "get-food-log": {
+            display: RED._("fitbit.resources.get-food-log"),
+            inputs: ["date"],
+            method: "GET",
+            func: UrlFactory.getFoodLog
+        },
+        "get-sleep-log-date": {
+            display: RED._("fitbit.resources.get-sleep-log-date"),
+            inputs: ["date"],
+            method: "GET",
+            func: UrlFactory.getSleepLogDate
+        },
+        "get-sleep-log-list": {
+            display: RED._("fitbit.resources.get-sleep-log-list"),
+            inputs: ["beforeDate", "afterDate", "sort", "limit"],
+            method: "GET",
+            func: UrlFactory.getSleepLogList
         },
         "log-activity": {
             display: RED._("fitbit.resources.log-activity"),
-            inputs: ["startDate", "startTime", "durationSec", "activityId", "activityName", "manualCalories", "distance"],
+            inputs: ["date", "startTime", "durationSec", "activityId", "activityName", "manualCalories", "distance", "distanceUnit"],
             method: "POST",
             func: UrlFactory.logActivty,
         },
@@ -157,8 +169,9 @@ module.exports = function (RED) {
                 resource.inputs.forEach((input) => {
                     data[input] = getTypedData(msg, input);
                 });
-
+                msg.inputdata = data;
                 url = resource.func(data);
+                msg.urlsent = url;
             } catch (err) {
                 errorReport(err, msg);
                 return;
@@ -174,6 +187,7 @@ module.exports = function (RED) {
 
             oauth.makeRequest(resource.method, url, credentials, credentialsNode.id).then(data => {
                 try {
+                    msg.raw = data;
                     msg.payload = parseFitbitData(data);
                 } catch (err) {
                     errorReport(err, msg);
