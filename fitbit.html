@@ -317,14 +317,27 @@ An endDate is always required. If a period is provided, this will be used in com
 An endDate is always required. If a period is provided, this will be used in combination with the endDate. If a startDate is provided, and no period, the data requested will be between those 2 dates.
 
 ### Get Food Log
+: date (timestamp, str) : The date the summary is required for (YYYY-MM-DD if string).
 
 ### Get Sleep Log by date
+: date (timestamp, str) : The date the summary is required for (YYYY-MM-DD if string).
 
 ### Get Sleep Log List
+: beforeDate (timestamp, str) : The date before which the data is required (YYYY-MM-DD if string).
+: afterDate (timestamp, str) : The date before which the data is required (YYYY-MM-DD if string).
+: sort (str) : The sort order (asc,desc).
+: limit (str,num) : Number of entries required (max 100).
+
+#### Note
+Either a before date or an after date is required. If both are provided, the before date will be used.
 
 ### Log Body Weight
+: date (timestamp, str) : The timestamp for the weight (YYYY-MM-DD if string). If no time is supplied it will be the last minute of the date.
+: weight (str,num) : The decimal weight in kg to be recorded.
 
 ### Log Body Fat
+: date (timestamp, str) : The timestamp for the weight (YYYY-MM-DD if string). If no time is supplied it will be the last minute of the date.
+: fat (str,num) : The decimal percentage fat to be recorded.
 
 ### Log activity
 
