@@ -27,6 +27,7 @@ function parseFitbitData(data) {
 function typedDataFactory(RED, config, node) {
     return function getTypedInput(msg, key) {
         const type = key + 'Type';
+        node.warn("got here")
 
         if (!config[type]) return config[key];
 
@@ -42,11 +43,12 @@ function typedDataFactory(RED, config, node) {
             case 'global':
                 return node.context().global.get(config[key]);
             case 'num':
-                return config[key];
+                return Number(config[key]);
             case 'jsonata':
-
+                var expr = RED.util.prepareJSONataExpression(config[key],node);
+                return RED.util.evaluateJSONataExpression(expr,msg);
             case 'env':
-
+                return node.context().env.get(config[key]);
             default:
                 break;
         }
